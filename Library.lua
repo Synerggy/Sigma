@@ -26,6 +26,7 @@ local Labels = {}
 local Buttons = {}
 local Toggles = {}
 local Options = {}
+local Images = {}
 
 local Library = {
     LocalPlayer = LocalPlayer,
@@ -60,6 +61,7 @@ local Library = {
     Buttons = Buttons,
     Toggles = Toggles,
     Options = Options,
+    Images = Images,
 
     NotifySide = "Right",
     ShowCustomCursor = true,
@@ -247,6 +249,12 @@ local Templates = {
 
         Callback = function() end,
         Changed = function() end,
+    },
+    Image = {
+        AssetId = "rbxasset://textures/ui/GuiImagePlaceholder.png",
+        Size = UDim2.fromOffset(80, 80),
+        Height = 110,
+        Visible = true,
     },
 }
 
@@ -2215,7 +2223,7 @@ do
 
         --// Context Menu \\--
         local ContextMenu = Library:AddContextMenu(Holder, UDim2.fromOffset(93, 0), function()
-            return { Holder.AbsoluteSize.X + 1.5, 0.5 }
+                        return { Holder.AbsoluteSize.X + 1.5, 0.5 }
         end, 1)
         ColorPicker.ContextMenu = ContextMenu
         do
@@ -2443,6 +2451,63 @@ do
         })
     end
 
+    function Funcs:AddImage(Idx, Info)
+        Info = Library:Validate(Info, Templates.Image)
+
+        local Groupbox = self
+        local Container = Groupbox.Container
+
+        local ImageComponent = {
+            Visible = Info.Visible,
+            Type = "Image",
+        }
+
+        local imagePosition = Info.Position or UDim2.new(0.5, -Info.Size.X.Offset / 2, 0, 5)
+
+        local Holder = New("Frame", {
+            BackgroundColor3 = "MainColor",
+            BorderColor3 = "OutlineColor",
+            BorderSizePixel = 1,
+            Size = UDim2.new(1, 0, 0, Info.Height),
+            Visible = ImageComponent.Visible,
+            Parent = Container,
+        })
+
+        local previewImage = New("ImageLabel", {
+            Size = Info.Size,
+            Position = imagePosition,
+            BackgroundTransparency = 1,
+            ScaleType = Enum.ScaleType.Fit,
+            Image = Info.AssetId,
+            ZIndex = Holder.ZIndex + 1,
+            Parent = Holder,
+        })
+
+        function ImageComponent:UpdateImage(newAssetId)
+            previewImage.Image = newAssetId
+        end
+
+        function ImageComponent:SetVisible(Visible)
+            ImageComponent.Visible = Visible
+            Holder.Visible = Visible
+            Groupbox:Resize()
+        end
+
+        ImageComponent.Holder = Holder
+        ImageComponent.ImageLabel = previewImage
+
+        table.insert(Groupbox.Elements, ImageComponent)
+        Groupbox:Resize()
+
+        if Idx then
+            Images[Idx] = ImageComponent
+        else
+            table.insert(Images, ImageComponent)
+        end
+
+        return ImageComponent
+    end
+
     function Funcs:AddLabel(...)
         local Data = {}
 
@@ -2619,6 +2684,12 @@ do
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 0, 21),
             Parent = Container,
+        })
+
+        New("UIPadding", {
+            PaddingLeft = UDim.new(0, 4),
+            PaddingRight = UDim.new(0, 4),
+            Parent = Holder,
         })
 
         New("UIListLayout", {
@@ -2802,7 +2873,8 @@ do
             Button.Base.TextTransparency = Button.Disabled and 0.8 or 0.4
             Button.Stroke.Transparency = Button.Disabled and 0.5 or 0
 
-            Library.Registry[Button.Base].BackgroundColor3 = Button.Disabled and "BackgroundColor" or "MainColor"
+            Library.Registry[Button.Base].BackgroundColor3 = Button.Disabled and "BackgroundColor"
+                or "MainColor"
         end
 
         function Button:SetDisabled(Disabled: boolean)
@@ -3886,7 +3958,7 @@ do
 
             local Count = 0
             for _, Value in pairs(Values) do
-                if SearchBox and not tostring(Value):lower():match(SearchBox.Text:lower()) then
+                if SearchBox and #SearchBox.Text > 0 and not string.find(tostring(Value):lower(), SearchBox.Text:lower(), 1, true) then
                     continue
                 end
 
@@ -4248,7 +4320,7 @@ do
                 Parent = DepGroupboxContainer,
             })
             New("UIPadding", {
-                PaddingBottom = UDim.new(0, 7),
+                PaddingBottom = UDim.new(0, 10),
                 PaddingLeft = UDim.new(0, 7),
                 PaddingRight = UDim.new(0, 7),
                 PaddingTop = UDim.new(0, 7),
@@ -5173,6 +5245,8 @@ function Library:CreateWindow(WindowInfo)
 
             local GroupboxContainer
             local GroupboxList
+            local Arrow
+            local HeaderButton
 
             do
                 GroupboxHolder = New("Frame", {
@@ -5218,6 +5292,25 @@ function Library:CreateWindow(WindowInfo)
                     Parent = GroupboxLabel,
                 })
 
+                Arrow = New("ImageLabel", {
+                    AnchorPoint = Vector2.new(1, 0),
+                    Image = ArrowIcon and ArrowIcon.Url or "",
+                    ImageColor3 = "FontColor",
+                    ImageRectOffset = ArrowIcon and ArrowIcon.ImageRectOffset or Vector2.zero,
+                    ImageRectSize = ArrowIcon and ArrowIcon.ImageRectSize or Vector2.zero,
+                    Position = UDim2.new(1, -12, 0, 9),
+                    Size = UDim2.fromOffset(16, 16),
+                    Parent = GroupboxHolder,
+                })
+
+                HeaderButton = New("TextButton", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 34),
+                    Text = "",
+                    ZIndex = 2,
+                    Parent = GroupboxHolder,
+                })
+
                 GroupboxContainer = New("Frame", {
                     BackgroundTransparency = 1,
                     Position = UDim2.fromOffset(0, 35),
@@ -5230,7 +5323,7 @@ function Library:CreateWindow(WindowInfo)
                     Parent = GroupboxContainer,
                 })
                 New("UIPadding", {
-                    PaddingBottom = UDim.new(0, 7),
+                    PaddingBottom = UDim.new(0, 15),
                     PaddingLeft = UDim.new(0, 7),
                     PaddingRight = UDim.new(0, 7),
                     PaddingTop = UDim.new(0, 7),
@@ -5246,10 +5339,30 @@ function Library:CreateWindow(WindowInfo)
                 Tab = Tab,
                 DependencyBoxes = {},
                 Elements = {},
+                IsCollapsed = true,
             }
 
+            GroupboxContainer.Visible = not Groupbox.IsCollapsed
+            Arrow.Rotation = Groupbox.IsCollapsed and 0 or 180
+
+            HeaderButton.MouseButton1Click:Connect(function()
+                Groupbox.IsCollapsed = not Groupbox.IsCollapsed
+                GroupboxContainer.Visible = not Groupbox.IsCollapsed
+                Arrow.Rotation = Groupbox.IsCollapsed and 0 or 180
+                Groupbox:Resize()
+            end)
+
             function Groupbox:Resize()
-                Background.Size = UDim2.new(1, 0, 0, GroupboxList.AbsoluteContentSize.Y + 53 * Library.DPIScale)
+                if Groupbox.IsCollapsed then
+                    Background.Size = UDim2.new(1, 0, 0, 38 * Library.DPIScale)
+                else
+                    Background.Size = UDim2.new(
+                        1,
+                        0,
+                        0,
+                        GroupboxList.AbsoluteContentSize.Y + 56 * Library.DPIScale
+                    )
+                end
             end
 
             setmetatable(Groupbox, BaseGroupbox)
@@ -5350,7 +5463,7 @@ function Library:CreateWindow(WindowInfo)
                     Parent = Container,
                 })
                 New("UIPadding", {
-                    PaddingBottom = UDim.new(0, 7),
+                    PaddingBottom = UDim.new(0, 10),
                     PaddingLeft = UDim.new(0, 7),
                     PaddingRight = UDim.new(0, 7),
                     PaddingTop = UDim.new(0, 7),
@@ -5394,7 +5507,7 @@ function Library:CreateWindow(WindowInfo)
                     if Tabbox.ActiveTab ~= Tab then
                         return
                     end
-                    Background.Size = UDim2.new(1, 0, 0, List.AbsoluteContentSize.Y + 53 * Library.DPIScale)
+                    Background.Size = UDim2.new(1, 0, 0, List.AbsoluteContentSize.Y + 56 * Library.DPIScale)
                 end
 
                 --// Execution \\--
