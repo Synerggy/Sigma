@@ -2702,22 +2702,20 @@ do
         local function CreateButton(Button)
             local Base = New("TextButton", {
                 Active = not Button.Disabled,
+                AutomaticSize = Enum.AutomaticSize.Y,
                 BackgroundColor3 = Button.Disabled and "BackgroundColor" or "MainColor",
-                Size = UDim2.fromScale(1, 1),
+                BorderSizePixel = 1,
+                BorderColor3 = "OutlineColor",
+                Size = UDim2.new(1, 0, 0, 21),
                 Text = Button.Text,
                 TextSize = 14,
                 TextTransparency = 0.4,
+                TextWrapped = true,
                 Visible = Button.Visible,
                 Parent = Holder,
             })
 
-            local Stroke = New("UIStroke", {
-                Color = "OutlineColor",
-                Transparency = Button.Disabled and 0.5 or 0,
-                Parent = Base,
-            })
-
-            return Base, Stroke
+            return Base
         end
 
         local function InitEvents(Button)
@@ -2773,7 +2771,7 @@ do
             end)
         end
 
-        Button.Base, Button.Stroke = CreateButton(Button)
+        Button.Base = CreateButton(Button)
         InitEvents(Button)
 
         function Button:AddButton(...)
@@ -2797,7 +2795,7 @@ do
             }
 
             Button.SubButton = SubButton
-            SubButton.Base, SubButton.Stroke = CreateButton(SubButton)
+            SubButton.Base = CreateButton(SubButton)
             InitEvents(SubButton)
 
             function SubButton:UpdateColors()
@@ -2810,10 +2808,11 @@ do
                 SubButton.Base.BackgroundColor3 = SubButton.Disabled and Library.Scheme.BackgroundColor
                     or Library.Scheme.MainColor
                 SubButton.Base.TextTransparency = SubButton.Disabled and 0.8 or 0.4
-                SubButton.Stroke.Transparency = SubButton.Disabled and 0.5 or 0
+                SubButton.Base.BorderColor3 = SubButton.Disabled and Library.Scheme.BackgroundColor or Library.Scheme.OutlineColor
 
                 Library.Registry[SubButton.Base].BackgroundColor3 = SubButton.Disabled and "BackgroundColor"
                     or "MainColor"
+                Library.Registry[SubButton.Base].BorderColor3 = SubButton.Disabled and "BackgroundColor" or "OutlineColor"
             end
 
             function SubButton:SetDisabled(Disabled: boolean)
@@ -2871,10 +2870,11 @@ do
             Button.Base.BackgroundColor3 = Button.Disabled and Library.Scheme.BackgroundColor
                 or Library.Scheme.MainColor
             Button.Base.TextTransparency = Button.Disabled and 0.8 or 0.4
-            Button.Stroke.Transparency = Button.Disabled and 0.5 or 0
+            Button.Base.BorderColor3 = Button.Disabled and Library.Scheme.BackgroundColor or Library.Scheme.OutlineColor
 
             Library.Registry[Button.Base].BackgroundColor3 = Button.Disabled and "BackgroundColor"
                 or "MainColor"
+            Library.Registry[Button.Base].BorderColor3 = Button.Disabled and "BackgroundColor" or "OutlineColor"
         end
 
         function Button:SetDisabled(Disabled: boolean)
