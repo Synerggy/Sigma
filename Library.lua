@@ -2686,12 +2686,6 @@ do
             Parent = Container,
         })
 
-        New("UIPadding", {
-            PaddingLeft = UDim.new(0, 4),
-            PaddingRight = UDim.new(0, 4),
-            Parent = Holder,
-        })
-
         New("UIListLayout", {
             FillDirection = Enum.FillDirection.Horizontal,
             HorizontalFlex = Enum.UIFlexAlignment.Fill,
@@ -2702,17 +2696,20 @@ do
         local function CreateButton(Button)
             local Base = New("TextButton", {
                 Active = not Button.Disabled,
-                AutomaticSize = Enum.AutomaticSize.Y,
                 BackgroundColor3 = Button.Disabled and "BackgroundColor" or "MainColor",
                 BorderSizePixel = 1,
                 BorderColor3 = "OutlineColor",
-                Size = UDim2.new(1, 0, 0, 21),
+                Size = UDim2.new(1, 1, 1, 1),
                 Text = Button.Text,
                 TextSize = 14,
                 TextTransparency = 0.4,
-                TextWrapped = true,
                 Visible = Button.Visible,
                 Parent = Holder,
+            })
+            New("UIPadding", {
+                PaddingLeft = UDim.new(0, 4),
+                PaddingRight = UDim.new(0, 4),
+                Parent = Base,
             })
 
             return Base
@@ -5943,4 +5940,4 @@ Library:GiveSignal(Teams.ChildRemoved:Connect(OnTeamChange))
 
 getgenv().Library = Library
 return Library
---print hey
+--print a waste of waste
