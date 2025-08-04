@@ -5490,6 +5490,13 @@ function Library:CreateWindow(WindowInfo)
                 Text = "",
                 Parent = Tabs,
             })
+            New("UIStroke", {
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Color = Library.Scheme.AccentColor,
+                Thickness = 1,
+                Transparency = 1,
+                Parent = TabButton
+            })
 
             New("UIPadding", {
                 PaddingBottom = UDim.new(0, 11),
@@ -5520,20 +5527,6 @@ function Library:CreateWindow(WindowInfo)
                     Size = UDim2.fromScale(1, 1),
                     SizeConstraint = Enum.SizeConstraint.RelativeYY,
                     Parent = TabButton,
-                })
-                New("UIGradient", {
-                    Color = ColorSequence.new({
-                        ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-                        ColorSequenceKeypoint.new(0.8, Color3.new(1, 1, 1)),
-                        ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
-                    }),
-                    Transparency = NumberSequence.new({
-                        NumberSequenceKeypoint.new(0, 0),
-                        NumberSequenceKeypoint.new(0.8, 0),
-                        NumberSequenceKeypoint.new(1, 1)
-                    }),
-                    Rotation = 90,
-                    Parent = TabIcon
                 })
             end
 
@@ -5663,6 +5656,7 @@ function Library:CreateWindow(WindowInfo)
                 TabLeft,
                 TabRight,
             },
+            Description = Description,
         }
 
         function Tab:UpdateWarningBox(Info)
@@ -6086,28 +6080,31 @@ function Library:CreateWindow(WindowInfo)
                 Library.ActiveTab:Hide()
             end
 
+            local Stroke = TabButton:FindFirstChild("UIStroke")
+            if Stroke then
+                Stroke.Transparency = 0
+            end
+
             TweenService:Create(TabButton, Library.TweenInfo, {
                 BackgroundTransparency = 0,
             }):Play()
             TweenService:Create(TabLabel, Library.TweenInfo, {
                 TextTransparency = 0,
             }):Play()
-            
-            local Gradient = TabIcon and TabIcon:FindFirstChild("UIGradient")
-            if Gradient then
-                Gradient.Enabled = true
-            end
             if TabIcon then
                 TweenService:Create(TabIcon, Library.TweenInfo, {
                     ImageTransparency = 0,
                 }):Play()
             end
 
-            if Description then
+            if Tab.Description then
                 CurrentTabInfo.Visible = true
                 SearchBox.Size = UDim2.fromScale(0.5, 1)
                 CurrentTabLabel.Text = Name
-                CurrentTabDescription.Text = Description
+                CurrentTabDescription.Text = Tab.Description
+            else
+                CurrentTabInfo.Visible = false
+                SearchBox.Size = UDim2.fromScale(1, 1)
             end
 
             TabContainer.Visible = true
@@ -6116,17 +6113,17 @@ function Library:CreateWindow(WindowInfo)
         end
 
         function Tab:Hide()
+            local Stroke = TabButton:FindFirstChild("UIStroke")
+            if Stroke then
+                Stroke.Transparency = 1
+            end
+
             TweenService:Create(TabButton, Library.TweenInfo, {
                 BackgroundTransparency = 1,
             }):Play()
             TweenService:Create(TabLabel, Library.TweenInfo, {
                 TextTransparency = 0.5,
             }):Play()
-
-            local Gradient = TabIcon and TabIcon:FindFirstChild("UIGradient")
-            if Gradient then
-                Gradient.Enabled = false
-            end
             if TabIcon then
                 TweenService:Create(TabIcon, Library.TweenInfo, {
                     ImageTransparency = 0.5,
