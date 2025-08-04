@@ -5521,6 +5521,20 @@ function Library:CreateWindow(WindowInfo)
                     SizeConstraint = Enum.SizeConstraint.RelativeYY,
                     Parent = TabButton,
                 })
+                New("UIGradient", {
+                    Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+                        ColorSequenceKeypoint.new(0.8, Color3.new(1, 1, 1)),
+                        ColorSequenceKeypoint.new(1, Color3.new(1, 1, 1))
+                    }),
+                    Transparency = NumberSequence.new({
+                        NumberSequenceKeypoint.new(0, 0),
+                        NumberSequenceKeypoint.new(0.8, 0),
+                        NumberSequenceKeypoint.new(1, 1)
+                    }),
+                    Rotation = 90,
+                    Parent = TabIcon
+                })
             end
 
             --// Tab Container \\--
@@ -6078,6 +6092,11 @@ function Library:CreateWindow(WindowInfo)
             TweenService:Create(TabLabel, Library.TweenInfo, {
                 TextTransparency = 0,
             }):Play()
+            
+            local Gradient = TabIcon and TabIcon:FindFirstChild("UIGradient")
+            if Gradient then
+                Gradient.Enabled = true
+            end
             if TabIcon then
                 TweenService:Create(TabIcon, Library.TweenInfo, {
                     ImageTransparency = 0,
@@ -6103,6 +6122,11 @@ function Library:CreateWindow(WindowInfo)
             TweenService:Create(TabLabel, Library.TweenInfo, {
                 TextTransparency = 0.5,
             }):Play()
+
+            local Gradient = TabIcon and TabIcon:FindFirstChild("UIGradient")
+            if Gradient then
+                Gradient.Enabled = false
+            end
             if TabIcon then
                 TweenService:Create(TabIcon, Library.TweenInfo, {
                     ImageTransparency = 0.5,
